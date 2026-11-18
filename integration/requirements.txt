@@ -1,0 +1,12 @@
+fastapi>=0.115,<1
+pydantic>=2.10,<3
+networkx>=3.4,<4
+httpx>=0.28,<1
+python-multipart>=0.0.20
+uvicorn>=0.34,<1
+jieba==0.42.1
+rank-bm25==0.2.2
+python-dotenv>=1,<2
+charset-normalizer==3.4.7
+cryptography>=42,<50
+

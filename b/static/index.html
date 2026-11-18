@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>阅迹 · 人物与关系</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">阅迹 <span>人物与关系</span></div>
+  <div class="book-picker">
+    <label for="book-select">当前书目</label>
+    <select id="book-select"><option value="">（未选择）</option></select>
+    <button id="refresh-books" class="ghost" type="button">刷新</button>
+  </div>
+</header>
+
+<nav id="tabs">
+  <button data-tab="books" class="active" type="button">书目</button>
+  <button data-tab="import" type="button">导入</button>
+  <button data-tab="extract" type="button">抽取</button>
+  <button data-tab="review" type="button">复核</button>
+  <button data-tab="graph" type="button">图谱</button>
+  <button data-tab="merges" type="button">合并</button>
+  <button data-tab="settings" type="button">预算</button>
+</nav>
+
+<main>
+  <section id="tab-books" class="tab active">
+    <div class="card">
+      <h2>书目</h2>
+      <p class="hint">选择一本书后，其余标签页都会以它为当前书目。编号与来源见 <code>data/README.md</code>。</p>
+      <table id="books-table">
+        <thead><tr><th>编号</th><th>书名</th><th>章节</th><th>段落</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tab-import" class="tab">
+    <div class="card">
+      <h2>导入小说</h2>
+      <p class="hint">支持 UTF-8 / GB18030 文本。先预览分章，确认标题与分段无误后再导入。正文出现在第一个章节标题之前、或章节为空时会标记为需检查。</p>
+      <div class="row">
+        <input id="import-file" type="file" accept=".txt,text/plain">
+        <span class="hint">或直接粘贴正文：</span>
+      </div>
+      <textarea id="import-text" rows="8" placeholder="第一章 初遇&#10;……"></textarea>
+      <div class="row">
+        <button id="preview-btn" type="button">预览分章</button>
+        <span id="preview-status" class="hint"></span>
+      </div>
+      <div id="preview-area" class="hidden">
+        <div class="row">
+          <label>编号 <input id="import-id" type="text" placeholder="如 guduzhe_dev"></label>
+          <label>书名 <input id="import-title" type="text" placeholder="如 孤独者"></label>
+        </div>
+        <div id="needs-review" class="warn hidden"></div>
+        <div id="preview-chapters"></div>
+        <div class="row">
+          <button id="confirm-import" type="button" class="primary">确认导入</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-extract" class="tab">
+    <div class="card">
+      <h2>抽取候选</h2>
+      <p class="hint">只发送指定章节、且不晚于阅读进度的正文。调用会计入全库预算，重复请求命中缓存不占次数。</p>
+      <div class="row">
+        <label>章节 <input id="extract-chapter" type="number" min="1" value="1"></label>
+        <label>阅读进度 <input id="extract-progress" type="number" min="1" value="1"></label>
+        <button id="extract-btn" type="button" class="primary">抽取这一章</button>
+        <button id="extract-job-btn" type="button">从这一章分析至阅读进度</button>
+        <button id="estimate-btn" type="button">预估所选范围</button>
+      </div>
+      <div id="budget-line" class="hint"></div>
+      <div id="estimate-line" class="hint"></div>
+      <pre id="extract-result" class="result hidden"></pre>
+      <h3>分析任务</h3>
+      <p class="hint">任务按章节处理；进度回退时会请求停止超出进度的任务。已发送的模型请求无法撤回。</p>
+      <div id="job-list"></div>
+      <h3>未通过校验的模型输出</h3>
+      <p class="hint">以下只是模型原始输出，不是已确认事实。请按原因核对原文，必要时手动补录。</p>
+      <button id="rejections-refresh" type="button">查看未通过项</button>
+      <div id="rejections-list"></div>
+    </div>
+  </section>
+
+  <section id="tab-review" class="tab">
+    <div class="card">
+      <h2>候选复核</h2>
+      <p class="hint">接受人物后指定人物编号；若候选其实是已有人的另一称谓，用下拉关联为别名。关系需双方都已有人物编号。</p>
+      <div class="row">
+        <label>阅读进度 <input id="review-progress" type="number" min="1" value="1"></label>
+        <label>查看 <select id="review-status"><option value="pending">待复核</option><option value="accepted">已接受</option><option value="rejected">已拒绝</option></select></label>
+        <button id="review-refresh" type="button">加载候选</button>
+      </div>
+      <div id="candidate-list"></div>
+    </div>
+  </section>
+
+  <section id="tab-graph" class="tab">
+    <div class="card">
+      <h2>人物关系图</h2>
+      <div class="row">
+        <label>阅读进度 <input id="graph-progress" type="range" min="1" max="1" value="1"></label>
+        <output id="graph-progress-label">1</output>
+        <button id="graph-refresh" type="button">刷新</button>
+      </div>
+      <div class="row"><label>筛选人物 <input id="graph-filter" type="search" placeholder="姓名或已知称谓"></label><span id="graph-filter-info" class="hint">筛选图谱及关系表，保留直接相连的人物。</span></div>
+      <div class="graph-wrap"><svg id="graph-svg" role="img" aria-label="人物关系图"></svg></div>
+      <div id="graph-empty" class="hint hidden">当前进度还没有人物，先抽取并复核候选。</div>
+      <h3>人物档案</h3>
+      <div id="profiles"></div>
+      <details class="manual-entry">
+        <summary>手动补录人物、档案或关系</summary>
+        <p class="hint">用于补充模型遗漏。请先核对原文和人物身份；段落编号必须在当前阅读进度内。</p>
+        <div class="row"><label>查看第 <input id="manual-read-chapter" type="number" min="1" value="1"> 章原文</label><button id="manual-read-button" type="button">查看段落</button></div>
+        <div id="manual-reading" class="manual-reading" aria-live="polite"></div>
+        <h4>添加人物</h4>
+        <div class="row"><label>人物编号 <input id="manual-person-id" placeholder="例如 linzhou"></label><label>称谓 <input id="manual-person-name"></label><label>证据段落 <input id="manual-person-paragraph" placeholder="ch0001_p0001"></label><button id="manual-person-submit" type="button">添加人物</button></div>
+        <h4>添加人物事实</h4>
+        <div class="row"><label>人物编号 <input id="manual-fact-person"></label><label>类别 <input id="manual-fact-category" placeholder="例如 身份"></label><label>内容 <input id="manual-fact-content"></label></div>
+        <div class="row"><label>陈述性质 <select id="manual-fact-type"><option value="explicit">原文陈述</option><option value="claim">角色声称</option><option value="inference">解释性推断</option></select></label><label>证据段落 <input id="manual-fact-paragraph"></label><label>逐字引文 <input id="manual-fact-quote"></label><button id="manual-fact-submit" type="button">添加事实</button></div>
+        <h4>添加关系</h4>
+        <div class="row"><label>源人物编号 <input id="manual-relation-source"></label><label>关系 <input id="manual-relation-label" placeholder="例如 相识"></label><label>目标人物编号 <input id="manual-relation-target"></label></div>
+        <div class="row"><label>方向 <select id="manual-relation-directed"><option value="true">有向</option><option value="false">无向</option></select></label><label>状态 <select id="manual-relation-action"><option value="assert">记录</option><option value="end">结束</option></select></label><label>证据段落 <input id="manual-relation-paragraph"></label><label>逐字引文 <input id="manual-relation-quote"></label><button id="manual-relation-submit" type="button">添加关系</button></div>
+      </details>
+      <h3>关系状态依据</h3>
+      <p class="hint">仅对已知证据按故事时间约束进行整理；没有先后依据的相反记录显示未定。</p>
+      <div id="relation-summary"></div>
+      <h3>事件时序依据</h3>
+      <p class="hint">展示当前进度内可见的事件、关系关联和时序来源。</p>
+      <div id="event-context"></div>
+      <h3>关系记录</h3>
+      <p class="hint">记录前的编号可用于提交故事时间先后证据。</p>
+      <table id="graph-edges">
+        <thead><tr><th>编号</th><th>源</th><th>关系</th><th>目标</th><th>方向</th><th>获知章节</th><th>证据</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <h3>修订人物、事实、关系或时序</h3>
+      <p class="hint">先核对记录编号。撤回后仍可查看修订历史，证据章节之前的视图不变。</p>
+      <div class="row"><label>类型 <select id="correction-kind"><option value="person">人物</option><option value="relation">关系</option><option value="fact">人物事实</option><option value="event">事件</option><option value="event_order">事件时序</option><option value="event_link">事件关联</option><option value="relation_order">关系时序</option></select></label><label>记录或人物编号 <input id="correction-id" type="text"></label><label>操作 <select id="correction-action"><option value="retract">撤回</option><option value="restore">恢复</option></select></label></div>
+      <div class="row"><label>依据段落 <input id="correction-paragraph" type="text"></label><label class="grow">逐字引文 <input id="correction-quote" type="text"></label></div>
+      <div class="row"><label class="grow">修订说明 <input id="correction-reason" type="text"></label><button id="correction-submit" type="button">保存修订</button></div>
+      <div id="correction-list"></div>
+      <h3>添加关系变化的时间依据</h3>
+      <p class="hint">只有原文明示或可靠事件时序支持先后时才添加；引文需要人工核对。</p>
+      <div class="row"><label>较早记录编号 <input type="number" min="1" id="order-before"></label><label>较晚记录编号 <input type="number" min="1" id="order-after"></label></div>
+      <div class="row"><label>证据段落 <input id="order-paragraph" type="text"></label><label class="grow">逐字引文 <input id="order-quote" type="text"></label></div>
+      <button id="order-submit" type="button">保存先后依据</button>
+      <div id="order-list"></div>
+    </div>
+  </section>
+
+  <section id="tab-merges" class="tab">
+    <div class="card">
+      <h2>人物合并</h2>
+      <label>阅读进度 <input id="merge-progress" type="number" min="1" value="1"></label>
+      <p class="hint">合并需要逐字引文和证据段落，按证据章节顺序录入，可从最新一条撤销。合并只改变查询视图，不删除原始人物。</p>
+      <div class="row">
+        <label>源人物 <input id="merge-source" type="text" placeholder="person id"></label>
+        <label>目标人物 <input id="merge-target" type="text" placeholder="person id"></label>
+      </div>
+      <div class="row">
+        <label>证据段落 <input id="merge-paragraph" type="text" placeholder="ch0002_p0029"></label>
+        <label class="grow">引文 <input id="merge-quote" type="text" placeholder="逐字引文"></label>
+      </div>
+      <button id="merge-btn" type="button" class="primary">添加合并</button>
+      <table id="merge-table">
+        <thead><tr><th>源</th><th>目标</th><th>章节</th><th>引文</th><th>状态</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tab-settings" class="tab">
+    <div class="card">
+      <h2>调用预算</h2>
+      <p class="hint">上限是全数据库累计调用次数（含失败与超时），不是金额。调整前请结合服务商账单。</p>
+      <div class="row">
+        <label>最大调用次数 <input id="budget-input" type="number" min="0" max="100000" value="0"></label>
+        <button id="budget-save" type="button" class="primary">保存</button>
+      </div>
+      <h3>调用记录</h3>
+      <table id="call-table">
+        <thead><tr><th>时间</th><th>书目</th><th>章节</th><th>模型</th><th>状态</th><th>用量</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast hidden"></div>
+<script src="/app.js?v=2"></script>
+</body>
+</html>

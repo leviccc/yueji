@@ -1,0 +1,71 @@
+{
+  "description": "Real fixture-based A/B handoff examples; replace text_version with upload response.",
+  "fixture": "evaluation/fixtures/灯塔旧账.txt",
+  "knowledge_request": {
+    "text_version": "REPLACE_WITH_UPLOAD_TEXT_VERSION",
+    "records": [
+      {
+        "record_id": "event-repair",
+        "source": "A",
+        "kind": "event",
+        "text": "陈岚在三年前六月初五报修，早于同年六月初九木桥坍塌；材料到第三章才被发现。",
+        "known_from_chapter": 3,
+        "assertion_type": "narrator",
+        "version": "synthetic-v1",
+        "evidence_refs": [
+          {
+            "paragraph_id": "ch0003-p0001",
+            "start": 0
+          }
+        ]
+      },
+      {
+        "record_id": "relationship-suhe-linzhou",
+        "source": "B",
+        "kind": "relationship",
+        "text": "苏禾与林舟合作核对账册，同时苏禾怀疑林舟会草率下结论；原文没有表明林舟也怀疑苏禾。",
+        "known_from_chapter": 2,
+        "assertion_type": "narrator",
+        "version": "synthetic-v1",
+        "evidence_refs": [
+          {
+            "paragraph_id": "ch0002-p0001",
+            "start": 0
+          }
+        ]
+      },
+      {
+        "record_id": "alias-bailu-guchi",
+        "source": "B",
+        "kind": "alias",
+        "text": "白鹭是顾迟的笔名；两者为同一人，这一身份到第五章才被确认。",
+        "known_from_chapter": 5,
+        "assertion_type": "narrator",
+        "version": "synthetic-v1",
+        "evidence_refs": [
+          {
+            "paragraph_id": "ch0005-p0001",
+            "start": 0
+          }
+        ]
+      }
+    ]
+  },
+  "qa_requests": [
+    {
+      "question": "陈岚报修与木桥坍塌哪件实际先发生？",
+      "as_of_chapter": 3,
+      "experiment": "Q1"
+    },
+    {
+      "question": "苏禾与林舟合作时是否还有怀疑？",
+      "as_of_chapter": 2,
+      "experiment": "Q1"
+    },
+    {
+      "question": "白鹭这个笔名对应谁的真实身份？",
+      "as_of_chapter": 2,
+      "experiment": "Q1"
+    }
+  ]
+}

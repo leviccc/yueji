@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-13",
+  "mode": "extractive",
+  "paid_model_calls": 0,
+  "temporary_database": true,
+  "checks": [
+    "TXT fixture parsed through POST /api/books",
+    "A event, B relationship and alias import; identical import is accepted twice",
+    "Wrong text_version returns 409; empty API records returns 422",
+    "Three sample QA requests return extractive results with exact source slices; chapter-5 alias hidden at chapter 2",
+    "Future paragraph read returns 404 at early progress"
+  ],
+  "scope": "C API contract only; not live A/B algorithms or D browser integration"
+}

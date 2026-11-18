@@ -1,0 +1,32 @@
+[
+  {
+    "title": "红楼梦（前五回）",
+    "file": "红楼梦（前五回）.txt",
+    "characters": 35926,
+    "chapter_count": 5,
+    "sha256": "3edc8bc60ab6b0d83d6cc4af64dbee103f6aeaecbdae6829540e2824f5f16f78",
+    "source_url": "https://www.gutenberg.org/cache/epub/24264/pg24264.txt",
+    "scope": "原作前五回的简体整理文本，不是整部小说。",
+    "preprocessing": "OpenCC 0.1.7 t2s; join hard-wrapped lines; split paragraphs at punctuation up to 500 characters; canonical chapter headers."
+  },
+  {
+    "title": "三国演义（前五回）",
+    "file": "三国演义（前五回）.txt",
+    "characters": 25338,
+    "chapter_count": 5,
+    "sha256": "ea64eea2e12d15c5c23b7ee7642ad986997701d1aafaa69db812d61a0ad8f14a",
+    "source_url": "https://www.gutenberg.org/cache/epub/23950/pg23950.txt",
+    "scope": "原作前五回的简体整理文本，不是整部小说。",
+    "preprocessing": "OpenCC 0.1.7 t2s; join hard-wrapped lines; split paragraphs at punctuation up to 500 characters; canonical chapter headers."
+  },
+  {
+    "title": "水浒传（前五回）",
+    "file": "水浒传（前五回）.txt",
+    "characters": 43009,
+    "chapter_count": 5,
+    "sha256": "6d1d08fa6b55193a7fa85e2f1d8f71612b4e195874f9f787d0a8c44a3ba8f9b3",
+    "source_url": "https://www.gutenberg.org/cache/epub/23863/pg23863.txt",
+    "scope": "原作前五回的简体整理文本，不是整部小说。",
+    "preprocessing": "OpenCC 0.1.7 t2s; join hard-wrapped lines; split paragraphs at punctuation up to 500 characters; canonical chapter headers."
+  }
+]
